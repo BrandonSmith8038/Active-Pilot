@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ActivePilot</title>
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="apple-touch-icon" href="/icon.png">
+<style>
+:root{--bg:#0e1320;--panel:#161c2c;--line:#26304a;--ink:#e9edf5;--mute:#8b94a8;--ok:#3ecf8e;--warn:#ffb020;--bad:#ff5252}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.45 "Segoe UI",system-ui,sans-serif}
+header{display:flex;justify-content:space-between;align-items:center;padding:8px 28px}
+.logo{height:112px;width:auto;display:block}
+@media(max-width:520px){.logo{height:80px}}
+.gear{width:42px;height:42px;padding:0;display:grid;place-items:center;border-radius:50%;color:var(--mute)}
+.gear:hover{color:var(--ink);background:var(--line)}
+.gear svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+button{font:inherit;cursor:pointer;border-radius:8px;border:1px solid var(--line);background:var(--panel);color:var(--ink);padding:8px 14px}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+main{display:grid;grid-template-columns:repeat(auto-fit,minmax(310px,1fr));gap:20px;padding:0 24px 40px;max-width:1100px;margin:auto}
+/* boarding pass: paper ticket, airline colour band, route row, field grid, perforation, barcode stub */
+.card{--paper:#f3f1ec;--ink2:#1d2433;--lab:#6b7280;--rule:#c9c5ba;--s:#6b7280;background:var(--paper);color:var(--ink2);border-radius:20px;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 8px 24px rgba(0,0,0,.35)}
+.top{background:linear-gradient(160deg,var(--c),color-mix(in srgb,var(--c),#000 30%));color:#fff;padding:14px 20px;display:flex;align-items:center;gap:10px}
+.top svg{width:18px;height:18px;fill:currentColor;flex:none}
+.brandname{font-weight:700;font-size:1.15rem;letter-spacing:.02em}
+.tag{margin-left:auto;font-size:.66rem;letter-spacing:.16em;text-transform:uppercase;opacity:.85}
+.route{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:22px 20px 6px}
+.route b{display:block;font-size:1.75rem;line-height:1;font-weight:800;letter-spacing:.02em;white-space:nowrap}
+.route small,.status small,.grid3 small{display:block;margin-top:6px;color:var(--lab);font-size:.66rem;letter-spacing:.07em;text-transform:uppercase}
+.route .r{text-align:right}
+.mid{text-align:center;flex:none;min-width:64px}
+.mid svg{width:28px;height:28px;fill:#4b5563;transform:rotate(90deg);display:block;margin:0 auto 4px}
+.cd{font-weight:800;font-size:1.25rem;line-height:1;color:var(--s)}
+.cd span{display:block;margin:4px 0 0;font-size:.62rem;font-weight:600;color:var(--lab);letter-spacing:.05em;text-transform:uppercase}
+.status{padding:16px 20px 0}.status small{margin:0 0 2px}
+.status b{font-size:1.2rem;letter-spacing:.04em;text-transform:uppercase;color:var(--s)}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px 10px;padding:16px 20px 22px}
+.grid3 small{margin:0 0 2px}.grid3 b{font-size:.98rem;font-weight:700;white-space:nowrap}
+.perf{border-top:2px dashed var(--rule);position:relative}
+.perf:before,.perf:after{content:"";position:absolute;top:-12px;width:24px;height:24px;border-radius:50%;background:var(--bg)}
+.perf:before{left:-12px}.perf:after{right:-12px}
+.tear{padding:18px 20px 18px;display:flex;flex-direction:column;gap:12px;flex:1}
+.log{background:var(--c);border:0;color:#fff;font-weight:600;padding:12px}
+.bars{width:100%;height:46px;fill:var(--ink2);opacity:.9}
+.serial{text-align:center;font-size:.64rem;letter-spacing:.22em;color:var(--lab);margin-top:-4px}
+.ok{--s:#1b8a5a}.warning{--s:#b86e00}.overdue{--s:#cf2f2f}
+.warning{animation:pulse 2.5s ease-in-out infinite;box-shadow:0 0 0 2px var(--s),0 8px 24px rgba(0,0,0,.35)}
+.overdue{box-shadow:0 0 0 2px var(--s),0 8px 24px rgba(0,0,0,.35)}
+@keyframes pulse{50%{box-shadow:0 0 0 5px color-mix(in srgb,var(--s),transparent 60%),0 8px 24px rgba(0,0,0,.35)}}
+@media(prefers-reduced-motion:reduce){.warning{animation:none}}
+.card details{font-size:.9rem;color:#4b5563}summary{cursor:pointer}
+.hist{display:flex;justify-content:space-between;align-items:center;padding:3px 0;color:var(--ink2)}
+.hist button{padding:0 8px;border:0;background:none;color:var(--lab)}
+/* settings */
+dialog{background:var(--panel);color:var(--ink);border:1px solid var(--line);border-radius:14px;width:min(540px,94vw);padding:20px 22px}
+dialog::backdrop{background:rgba(0,0,0,.6)}
+.dh{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}.dh h2{margin:0;font-size:1.2rem}
+.tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:18px}
+.tab{border-radius:99px;padding:6px 16px}
+.tab.on{background:var(--c,#3a4566);border-color:transparent;color:#fff;font-weight:600}
+.panel h3{font-size:.95rem;font-weight:600;color:var(--mute);margin:20px 0 10px}.panel h3:first-child{margin-top:0}
+.grid{display:grid;grid-template-columns:140px 1fr;gap:12px 14px;align-items:start}
+.grid label{padding-top:7px}
+.inl{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+input,select{font:inherit;background:var(--bg);color:var(--ink);border:1px solid var(--line);border-radius:6px;padding:6px 8px}
+input[type=number]{width:76px}
+/* custom +/- stepper replaces the browser's default spinner arrows */
+.step{display:inline-flex;align-items:stretch;border:1px solid var(--line);border-radius:8px;overflow:hidden;background:var(--bg);justify-self:start}
+.step button{border:0;border-radius:0;background:transparent;color:var(--mute);padding:0 13px;font-size:1.15rem;line-height:1}
+.step button:hover{background:var(--line);color:var(--ink)}
+.step input[type=number]{width:52px;border:0;border-radius:0;text-align:center;-moz-appearance:textfield;appearance:textfield}
+.step input::-webkit-inner-spin-button,.step input::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
+.step:focus-within{outline:2px solid var(--ink);outline-offset:2px}
+.step input:focus-visible,.step button:focus-visible{outline:none}
+small{display:block;color:var(--mute);margin-top:6px;font-size:.82rem;line-height:1.35}
+.save{background:var(--c,#3a4566);border:0;color:#fff;font-weight:600;margin-top:16px}
+.note{color:var(--mute);margin:0 0 12px}
+#msg{color:var(--mute);min-height:1.4em;font-size:.9rem;margin-top:16px}
+@media(max-width:480px){.grid{grid-template-columns:1fr}.grid label{padding-top:0}}
+</style></head><body>
+<header><img class="logo" src="/logo.png" alt="ActivePilot"><button id="gear" class="gear" aria-label="Settings" title="Settings"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></button></header>
+<main id="cards"></main>
+<dialog id="dlg">
+ <div class="dh"><h2>Settings</h2><button id="close">Close</button></div>
+ <div id="sets"></div>
+ <div id="msg"></div>
+</dialog>
+<script>
+const $=s=>document.querySelector(s);let S,tab='ups';
+const api=(p,b)=>fetch('/api/'+p,{method:'POST',body:JSON.stringify(b)}).then(r=>r.json());
+const fmt=d=>new Date(d+'T12:00').toLocaleDateString(undefined,{month:'short',day:'numeric',year:'numeric'});
+const label={ok:'On track',warning:'Fly soon',overdue:'Overdue',none:'No flights yet'};
+const chip=a=>a.done&&a.status==='ok'?'Period complete':a.status!=='overdue'||!a.grace?label[a.status]:a.grace_left>=0?'Grace period':'Past grace';
+function big(a){
+ if(a.status==='none')return'Log your first flight';
+ const l=a.days_left;
+ if(l<0&&a.grace){const g=a.grace_left;return g>=0?`${g}<span>grace day${g==1?'':'s'} left</span>`:`${-g}<span>day${g==-1?'':'s'} past grace</span>`}
+ if(l<0)return`${-l}<span>day${l==-1?'':'s'} overdue</span>`;
+ if(l===0)return'Due today';
+ return`${l}<span>day${l==1?'':'s'} left</span>`;
+}
+const short=d=>d?new Date(d+'T12:00').toLocaleDateString(undefined,{month:'short',day:'numeric'}).toUpperCase():'--';
+const yr=d=>d?' \u00b7 '+d.slice(0,4):'';
+const PLANE='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 16v-2l-8-5V3.5a1.5 1.5 0 0 0-3 0V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5z"/></svg>';
+function bars(s){ // decorative barcode, stable per airline + deadline
+ let h=0;for(const c of s)h=(h*31+c.charCodeAt(0))>>>0;
+ let x=0,o='';while(x<198){h=(h*1664525+1013904223)>>>0;const w=1+(h>>>28)%3,g=1+(h>>>24)%2;o+=`<rect x="${x}" width="${w}" height="28"/>`;x+=w+g}
+ return`<svg class="bars" viewBox="0 0 200 28" preserveAspectRatio="none" aria-hidden="true">${o}</svg>`;
+}
+function renderCards(){
+ $('#cards').innerHTML=S.airlines.map(a=>`
+ <section class="card ${a.status}" style="--c:${a.color}">
+  <div class="top">${PLANE}<span class="brandname">${a.name}</span><span class="tag">Activity pass</span></div>
+  <div class="route">
+   <div><b>${short(a.last)}</b><small>Last flight${yr(a.last)}</small></div>
+   <div class="mid">${PLANE}<div class="cd">${a.status==='none'?'&mdash;<span>no flights yet</span>':big(a)}</div></div>
+   <div class="r"><b>${short(a.deadline)}</b><small>Fly by${yr(a.deadline)}</small></div>
+  </div>
+  <div class="status"><small>Status</small><b>${chip(a)}</b></div>
+  <div class="grid3">
+   <div><small>${a.fixed?'In period':'In window'}</small><b>${a.in_window} of ${a.flights}</b></div>
+   <div><small>Required</small><b>${a.flights} per ${a.period}${a.unit==='days'?'d':'mo'}</b></div>
+   <div><small>Grace</small><b>${a.grace?a.grace+' days':'None'}</b></div>
+   <div><small>Airline</small><b>${a.id.toUpperCase()}</b></div>
+   <div><small>Issued</small><b>${short(S.today)}</b></div>
+   <div><small>Counting</small><b>${a.fixed?'Fixed':'Rolling'}</b></div>
+  </div>
+  <div class="perf"></div>
+  <div class="tear">
+   <button class="log" onclick="logFlight('${a.id}')">Log flight today</button>
+   ${bars(a.id+(a.deadline||''))}<div class="serial">NO. ${a.id.toUpperCase()}${(a.deadline||'').replace(/-/g,'')}</div>
+   <!-- HISTORY: delete this details block to remove the history feature -->
+   <details><summary>History (${a.history.length})</summary>
+    ${a.history.map(d=>`<div class="hist"><span>${fmt(d)}</span><button title="Delete entry" onclick="delFlight('${a.id}','${d}')">Delete</button></div>`).join('')||'<div>No flights logged.</div>'}
+   </details>
+  </div>
+ </section>`).join('');
+}
+const num=(id,v,min,max)=>`<span class="step"><button type="button" aria-label="Decrease" onclick="bump('${id}',-1)">&minus;</button><input type="number" id="${id}" min="${min}"${max!=null?` max="${max}"`:''} value="${v}"><button type="button" aria-label="Increase" onclick="bump('${id}',1)">+</button></span>`;
+window.bump=(id,d)=>{const i=$('#'+id),mn=i.min!==''?+i.min:-Infinity,mx=i.max!==''?+i.max:Infinity;i.value=Math.min(mx,Math.max(mn,(parseInt(i.value)||0)+d))};
+function renderSets(){
+ const tabs=S.airlines.map(a=>`<button class="tab${tab===a.id?' on':''}" data-t="${a.id}" style="--c:${a.color}" onclick="setTab('${a.id}')">${a.name}</button>`).join('')
+  +`<button class="tab${tab==='alerts'?' on':''}" data-t="alerts" onclick="setTab('alerts')">Alerts</button>`;
+ const panels=S.airlines.map(a=>`
+ <div class="panel" id="t-${a.id}" style="--c:${a.color}" ${tab===a.id?'':'hidden'}>
+  <h3>Requirement</h3>
+  <div class="grid">
+   <label for="f-${a.id}">Flights required</label>${num('f-'+a.id,a.flights,1)}
+   <label for="p-${a.id}">Within every</label>
+   <span class="inl">${num('p-'+a.id,a.period,1)}
+    <select id="u-${a.id}"><option ${a.unit=='days'?'selected':''}>days</option><option ${a.unit=='months'?'selected':''}>months</option></select></span>
+   <label for="g-${a.id}">Grace period</label><span class="inl">${num('g-'+a.id,a.grace||0,0)} days</span>
+   <label for="e-${a.id}">Fixed period ends</label>
+   <span><input type="date" id="e-${a.id}" value="${a.period_end||''}">
+    <small>Optional. Enter the "due by" date from the airline's site. Leave blank to count from your most recent flights.</small></span>
+  </div>
+  <button class="save" onclick="saveSet('${a.id}')">Save requirement</button>
+  <h3>Add a past flight</h3>
+  <div class="grid"><label for="d-${a.id}">Flight date</label>
+   <span class="inl"><input type="date" id="d-${a.id}" max="${S.today}" value="${S.today}"><button onclick="addPast('${a.id}')">Add flight</button></span></div>
+ </div>`).join('');
+ const alerts=`
+ <div class="panel" id="t-alerts" ${tab==='alerts'?'':'hidden'}>
+  <h3>Warning window</h3>
+  <div class="grid"><label for="warn">Start warning</label>
+   <span class="inl">${num('warn',S.warn_days,0,60)} days before a deadline</span></div>
+  <button class="save" onclick="saveWarn()">Save warning window</button>
+  <h3>Notifications</h3>
+  <p class="note">${S.ntfy?'A daily reminder goes to your ntfy topic while a card is in its warning window or overdue.':'No ntfy topic is set. Add NTFY_TOPIC to your .env file and restart the container.'}</p>
+  <button onclick="testNtfy()">Send test notification</button>
+ </div>`;
+ $('#sets').innerHTML=`<div class="tabs">${tabs}</div>${panels}${alerts}`;
+}
+async function load(force){S=await(await fetch('/api/state')).json();renderCards();if(force||!$('#dlg').open)renderSets()}
+const act=async(p,b,m)=>{const r=await api(p,b);$('#msg').textContent=r.error||m||'';await load(true)};
+window.setTab=t=>{tab=t;$('#msg').textContent='';document.querySelectorAll('.panel').forEach(p=>p.hidden=p.id!=='t-'+t);document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('on',b.dataset.t===t))};
+window.logFlight=id=>act('log',{id});
+window.delFlight=(id,date)=>confirm('Delete the flight on '+fmt(date)+'?')&&act('delete',{id,date});
+window.saveSet=id=>act('settings',{id,flights:$('#f-'+id).value,period:$('#p-'+id).value,unit:$('#u-'+id).value,grace:$('#g-'+id).value,period_end:$('#e-'+id).value},'Requirement saved.');
+window.addPast=id=>act('log',{id,date:$('#d-'+id).value},'Flight added.');
+window.saveWarn=()=>act('warn',{days:$('#warn').value},'Warning window saved.');
+window.testNtfy=async()=>{const r=await api('test',{});$('#msg').textContent=r.sent?'Test notification sent.':'Could not send. Check NTFY_TOPIC in .env.'};
+$('#gear').onclick=()=>{$('#msg').textContent='';renderSets();$('#dlg').showModal()};
+$('#close').onclick=()=>$('#dlg').close();
+load();setInterval(load,60000);
+</script></body></html>

@@ -1,0 +1,13 @@
+# Personal settings live in ".env" next to this file (copy .env.example to .env).
+services:
+  vac-dashboard:
+    build: .
+    container_name: vac-dashboard
+    restart: unless-stopped
+    env_file: .env
+    ports:
+      - "${HTTP_PORT:-8100}:${HTTP_PORT:-8100}"    # LAN only - do NOT forward this port on your router
+    volumes:
+      - /mnt/user/appdata/vac-dashboard:/data      # flight history + settings; keep OUTSIDE the git clone
+    labels:
+      net.unraid.docker.icon: "${ICON_URL:-}"

@@ -1,0 +1,10 @@
+# Personal settings (NTFY topic, timezone, icon URL) - never commit
+.env
+
+# Python
+__pycache__/
+*.pyc
+
+# OS junk
+.DS_Store
+Thumbs.db
