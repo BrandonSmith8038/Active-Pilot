@@ -30,7 +30,7 @@ Self-hosted dashboard that tracks flight-activity requirements for three virtual
 
 ## Testing
 - No unit tests. To check a change, run `python .claude/skills/run-activepilot/driver.py smoke` (the `/run-activepilot` skill), look at its screenshot, then ask the user to test.
-- The user deploys by pushing to GitHub and running `docker compose up -d --build` on Unraid.
+- The user builds and tests with `docker compose up -d --build` on Unraid, then commits and pushes once changes are confirmed (see the workflow in the global CLAUDE.md).
 
 ## Ideas offered, not requested
 - A light/cream page variant, and striped ticket edges like a reference boarding pass.
