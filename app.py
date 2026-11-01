@@ -50,6 +50,11 @@ def migrate():
         for a in state["airlines"]:
             if a["id"] == "swa": a["grace"] = 7
         state["rules_v"] = 4; save()
+    if state.get("rules_v") < 5:
+        # Southwest is strict rolling after all (site deadline = 2nd most recent flight + 90 days)
+        for a in state["airlines"]:
+            if a["id"] == "swa": a.pop("period_end", None)
+        state["rules_v"] = 5; save()
 
 def save():
     os.makedirs("/data", exist_ok=True)

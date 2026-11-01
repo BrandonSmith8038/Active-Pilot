@@ -23,8 +23,7 @@ Self-hosted dashboard that tracks flight-activity requirements for three virtual
 - Notifications: at most one per airline per day, after `NOTIFY_HOUR`, only for warning or overdue status, with no tap action.
 
 ## Unverified / open
-- **Southwest fixed periods are an inference.** The SOP (v7.4) says "rolling 90 days", but the airline's site showed "due by Dec 1, 2026" while still Active. That fits fixed back-to-back 90-day periods, so `swa` has `period_end = 2026-12-01`, which `migrate()` hardcodes. Next step: after the user's next SWA flight, compare the card's "Fly by" with the site's "Due by". If the site shows about Mar 1, 2027, fixed periods are right. Option offered but not decided: show whichever deadline is sooner, strict rolling or the site's date.
-- On a new install after Dec 2026, the hardcoded Southwest `period_end` is stale and must be edited in Settings.
+- **Southwest is strict rolling (verified Nov 2026).** With flights on Oct 27 and Oct 30, 2026, the site showed a deadline of Jan 25, 2027 (Oct 27 + 90). The fixed-period guess was wrong, and migration v5 removes `period_end`. The fixed-period code path still exists but no airline uses it. The earlier "due by Dec 1, 2026" was never explained.
 - Not yet confirmed by the user: ntfy delivery end to end (test button and the 4 pm reminder), and whether the favicon and Unraid icon (`ICON_URL=http://SERVER-IP:8100/icon.png`) appear.
 - Known small issues: the notification can say "Last flight: None." in fixed mode with no history, and deleting a flight doesn't reset `notified`.
 - `requiremnts` (misspelled) is an empty, unused file.
@@ -36,5 +35,5 @@ Self-hosted dashboard that tracks flight-activity requirements for three virtual
 ## How the user likes to work
 - Before any **new project**, ask ten clarifying questions, one at a time.
 - After a requested feature, ask the user to test it. When they say it's good, give a commit message.
-- For fewer than 6 code changes, present them as search-and-replace blocks. Always add a brief plain-English explanation of what changed and how, so the user can learn.
+- Make code edits directly, then show each change (before/after) with a brief plain-English explanation of what changed and how, so the user can learn.
 - Other ideas offered but not requested: a light/cream page variant, and striped ticket edges like a reference boarding pass.
