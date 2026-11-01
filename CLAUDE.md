@@ -32,8 +32,5 @@ Self-hosted dashboard that tracks flight-activity requirements for three virtual
 - No unit tests. To check a change, run `python .claude/skills/run-activepilot/driver.py smoke` (the `/run-activepilot` skill), look at its screenshot, then ask the user to test.
 - The user deploys by pushing to GitHub and running `docker compose up -d --build` on Unraid.
 
-## How the user likes to work
-- Before any **new project**, ask ten clarifying questions, one at a time.
-- After a requested feature, ask the user to test it. When they say it's good, give a commit message.
-- Make code edits directly, then show each change (before/after) with a brief plain-English explanation of what changed and how, so the user can learn.
-- Other ideas offered but not requested: a light/cream page variant, and striped ticket edges like a reference boarding pass.
+## Ideas offered, not requested
+- A light/cream page variant, and striped ticket edges like a reference boarding pass.
