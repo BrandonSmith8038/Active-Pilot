@@ -1,0 +1,7 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python .claude/skills/run-activepilot/driver.py smoke)"
+    ]
+  }
+}
