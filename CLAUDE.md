@@ -29,7 +29,7 @@ Self-hosted dashboard that tracks flight-activity requirements for three virtual
 - `requiremnts` (misspelled) is an empty, unused file.
 
 ## Testing
-- No automated tests. The user can't browse to Claude's environment, so check page JS by syntax-checking the extracted script with `node --check`, then ask the user to test.
+- No unit tests. To check a change, run `python .claude/skills/run-activepilot/driver.py smoke` (the `/run-activepilot` skill), look at its screenshot, then ask the user to test.
 - The user deploys by pushing to GitHub and running `docker compose up -d --build` on Unraid.
 
 ## How the user likes to work
